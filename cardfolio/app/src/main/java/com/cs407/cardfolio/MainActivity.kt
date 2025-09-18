@@ -1,6 +1,7 @@
 package com.cs407.cardfolio
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -90,6 +93,9 @@ fun Cardfolio() {
     var hobby by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     val outlineColor = MaterialTheme.colorScheme.outline
+    var isEditing by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     Box(
         contentAlignment = Alignment.Center,
@@ -134,6 +140,22 @@ fun Cardfolio() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                AssistChip(
+                    onClick = { isEditing = !isEditing},
+                    label = { Text(if (isEditing) stringResource(id = R.string.is_editing) else stringResource(id = R.string.is_locked))},
+                    leadingIcon = {
+                        Icon(
+                            imageVector = if (isEditing) {
+                                Icons.Default.Edit
+                            } else {
+                                Icons.Default.Lock
+                            },
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                )
             }
                 HorizontalDivider(color = outlineColor)
                 Column (
@@ -147,14 +169,16 @@ fun Cardfolio() {
                         onValueChange = { name = it },
                         label = { Text(stringResource(id = R.string.card_name_label)) },
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = {Icon(Icons.Default.Person, contentDescription = null)}
+                        leadingIcon = {Icon(Icons.Default.Person, contentDescription = null)},
+                        enabled = isEditing
                     )
                     OutlinedTextField(
                         value = hobby,
                         onValueChange = { hobby = it },
                         label = { Text(stringResource(id = R.string.card_hobby_label)) },
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null) },
+                        enabled = isEditing
                     )
                     OutlinedTextField(
                         value = age,
@@ -166,8 +190,58 @@ fun Cardfolio() {
                         label = { Text(stringResource(id = R.string.card_age_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
+                        supportingText = { if (isEditing)
+                            Text(stringResource(id = R.string.age_warning)) },
+                        enabled = isEditing
                     )
+
+                    Row (
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        OutlinedButton(
+                            onClick = {isEditing = true},
+                            enabled = !isEditing
+                        ) {
+                            Icon(Icons.Default.Edit, contentDescription = null)
+                            Text("Edit")
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        OutlinedButton(
+                            onClick = {
+                                val missing = buildList {
+                                    if (name.isBlank()) add("Name")
+                                    if (hobby.isBlank()) add("Hobby")
+                                    if (age.isBlank()) add("Age")
+                                }
+
+                                if (missing.isNotEmpty()) {
+                                    val message = "Please enter: ${missing.joinToString(", ")}"
+                                    Toast.makeText(
+                                        context,
+                                        message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    isEditing = false
+                                    Toast.makeText(
+                                        context,
+                                        "Saved successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                            },
+                            enabled = isEditing
+                        ) {
+                            Icon(Icons.Default.Check, contentDescription = null)
+                            Text("Save")
+                        }
+                    }
+
                 }
 
 
