@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.*
@@ -31,11 +34,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cs407.cardfolio.ui.theme.AppTheme
 import com.cs407.cardfolio.ui.theme.CardfolioTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,17 +50,34 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CardfolioTheme {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.app_name),
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
-                    )
-                    Cardfolio()
+                val gradientTopColor = AppTheme.customColors.gradientTop
+                val gradientBottomColor = AppTheme.customColors.gradientBottom
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    gradientTopColor,
+                                    gradientBottomColor
+                                )
+                            )
+                        ),
+                    color = Color.Transparent,
+                ){
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.app_name),
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+                        )
+                        Cardfolio()
+                    }
                 }
+
             }
         }
     }
@@ -123,13 +146,15 @@ fun Cardfolio() {
                         value = name,
                         onValueChange = { name = it },
                         label = { Text(stringResource(id = R.string.card_name_label)) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {Icon(Icons.Default.Person, contentDescription = null)}
                     )
                     OutlinedTextField(
                         value = hobby,
                         onValueChange = { hobby = it },
                         label = { Text(stringResource(id = R.string.card_hobby_label)) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null) }
                     )
                     OutlinedTextField(
                         value = age,
@@ -140,7 +165,8 @@ fun Cardfolio() {
                         },
                         label = { Text(stringResource(id = R.string.card_age_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
                     )
                 }
 
